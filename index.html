@@ -15,8 +15,162 @@
     <header>
 
     </header>
-
     <div id="interpreter">
+        <section class="ascii">
+            <h3>Input a ascii string</h3>
+            <input name="characters" type="text"/>
+            <button name="convert">Convert</button>
+            <h3>Corresponding ASCII in DEC</h3>
+            <pre class="justPre" id="ascii-list"></pre>
+            <h3>Begining store values</h3>
+            <pre class="justPre" id="factor-10"></pre>
+            <h3>Brainfuck String</h3>
+            <pre class="justPre" id="brainfuck"></pre>
+            <script type="text/javascript">
+                $(function () {
+                    var newline = String.fromCharCode(13, 10)
+                    var limit = 126
+                    var characters = ''
+                    var asciiList = []
+                    var bfSlots = {}
+                    for (let i = 1; i <= 12; i++) {
+                        bfSlots[i] = []
+                    }
+                    var factors = []
+                    var bfstore = []
+
+                    var bf = []
+
+                    function reset() {
+                        asciiList = []
+                        bfSlots = {}
+                        factors = []
+                        bfstore = []
+                        bf = []
+                    }
+
+                    // Limit to only ascii 126 characters 
+                    function limit127(ascii) {
+                    }
+
+                    function factor10(list) {
+                        var factorSet = new Set()
+                        for (let i = 0; i < list.length; i++) {
+                            for (let j = 12; j > 0; j--) {
+                                if (j * 10 - 5 < list[i] && list[i] <= j * 10 + 5) {
+                                    // bfSlots[j].push(list[i])
+                                    factorSet.add(j)
+                                    break;
+                                } 
+                            }
+                        }
+                        factors = Array.from(factorSet).sort((a, b) => a - b)
+                        for (let i = 0; i < factors.length; i++) {
+                            bfstore.push(factors[i] * 10) 
+                        }
+                        return bfstore
+                    }
+
+                    function createBf(list, factors) {
+                        bf.push('+++++ +++++') // Always default cell #0 to 10
+                        bf.push('[') // Start loop
+                        for (let i = 0; i < factors.length; i++) {
+                            var line = '> '
+                            var countTo5 = 0
+                            for (let j = 0; j < factors[i]; j++) {
+                                countTo5 = countTo5 + 1
+                                if (countTo5 > 5) {
+                                    countTo5 = 1
+                                    line += ' '
+                                }
+                                line += '+'
+                            }
+                            bf.push(line) // Add '+' for the factors of 10
+                        }
+
+                        var line = ''
+                        for (let i = 0; i < factors.length; i++) {
+                            line += '<'
+                        }
+                        line += ' -'
+                        bf.push(line) // Add loop logic back to count #cell0
+                        bf.push(']') // End loop
+                        bf.push('>') // Move pointer to next
+
+                        var point = 0
+                        for (let i = 0; i < list.length; i++) {
+                            var line = ''
+                            for (let j = bfstore.length - 1; j >= 0; j--) {
+                                // if (bfstore[j] - 5 <= list[i] && list[i] <= bfstore[j] + 5) {
+                                if (bfstore[j] - 5 <= list[i]) {
+                                    var moves = j - point
+                                    point = j // set current pointer at
+                                    if (moves >= 0) {
+                                        for (let k = 0; k < moves; k++) {
+                                            line += '>'
+                                        }
+                                    } else {
+                                        for (let k = 0; k < Math.abs(moves); k++) {
+                                            line += '<'
+                                        }
+                                    }
+                                    // debug
+                                    var diff = list[i] - bfstore[j]
+                                    console.log(diff)
+                                    if (diff >= 0) {
+                                        for (let k = 0; k < diff; k++) {
+                                            line += '+'
+                                        }
+                                        bfstore[j] += diff
+                                    } else {
+                                        for (let k = 0; k < Math.abs(diff); k++) {
+                                            line += '-'
+                                        }
+                                        bfstore[j] -= Math.abs(diff)
+                                    }
+                                    break;
+                                }
+                            }
+                            bf.push(line + ' .')
+                        }
+                        return bf
+                    }
+
+                    function convert() {
+                        reset()
+                        characters = $("input[name=characters]").val();
+                        asciiList = $.map(characters.split(''), function(character) {
+                            return parseInt(character.charCodeAt(), 10)
+                        });
+                        // TODO: call limit127()
+                        $("pre#ascii-list").text(asciiList.join(' '));
+
+                        // Sort and Group up
+                        console.log('list', asciiList)
+                        factor10(asciiList);
+                        $("pre#factor-10").text('10 | ' + bfstore.join(' | '))
+
+                        console.log('factor', factors)
+                        // Brain fuck code
+                        console.log('current store', bfstore)
+                        createBf(asciiList, factors).join(newline);
+
+                        console.log(bf)
+                        $("pre#brainfuck").text(bf.join(newline))
+                        $("textarea#source").text(bf.join(newline))
+                    }
+
+                    // For non-click testing
+                    $("input[name=characters]").val('idc')
+                    convert()
+
+                    $("button[name=convert]").click(function() {
+                        convert()
+                    })
+                });
+            </script>
+        </section>
+
         <section class="machine">
             <ul class="tape">
             </ul>

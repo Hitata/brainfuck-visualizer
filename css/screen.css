@@ -216,3 +216,30 @@ section.machine {
         margin: 0 20px;
     }
 
+    section.ascii {
+        margin-top: 40px;
+        margin-left: 20px;
+    }
+
+    input[name="characters"] {
+        padding: 10px 15px;
+        font-size: 15px;
+        width: 450px;
+        margin-bottom: 10px;
+    }
+
+    button[name="convert"] {
+        padding: 10px 15px;
+        font-size: 15px;
+    }
+    
+    pre.justPre {
+        font-family: monospace;
+        font-size: 17px;
+        margin: 0 22px 0 0;
+        background-color: #eeeeee;
+        min-height: 1.2em;
+        padding: 10px;
+        color: #5d5d5d;
+    }
+    
